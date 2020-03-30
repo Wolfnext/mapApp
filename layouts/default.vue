@@ -1,58 +1,65 @@
 <template>
   <v-app dark>
-    <v-navigation-drawer
-      v-model="drawer"
-      :mini-variant="miniVariant"
-      :clipped="clipped"
-      fixed
-      app
-    >
-
-    </v-navigation-drawer>
     <v-app-bar
-      :clipped-left="clipped"
       fixed
       app
       light
       color="white"
     >
-     123
-    </v-app-bar>
-    <v-content>
-      <v-container>
-        <nuxt />
-      </v-container>
-    </v-content>
-    <v-navigation-drawer
-      v-model="rightDrawer"
-      :right="right"
-      temporary
-      fixed
-    >
-      <v-list>
-        <v-list-item @click.native="right = !right">
-          <v-list-item-action>
-            <v-icon light>
-              mdi-repeat
-            </v-icon>
-          </v-list-item-action>
+    <v-app-bar-nav-icon class="ml-3">
+      <v-img width="50" src="office-building.svg"></v-img>
+    </v-app-bar-nav-icon>
 
+    <v-toolbar-title class="bar__title">IKOS</v-toolbar-title>
+     <v-spacer></v-spacer>
+
+     <span :key="index" v-for="(item, index) in menuButtons">
+      <v-btn v-if="!item.menuExtension" text>
+        <span >{{item.text}}</span>
+      </v-btn>
+      <v-menu v-if="item.menuExtension" offset-y>
+      <template v-slot:activator="{ on }">
+        <v-btn
+          text
+          v-on="on"
+        >
+         <span>{{item.text}}</span>
+         <v-icon>mdi-menu-down</v-icon>
+        </v-btn>
+      </template>
+      <v-list>
+        <v-list-item
+          v-for="(itemMenu, index) in item.menuList"
+          :key="index"
+          @click="(()=>{})"
+        >
+          <v-list-item-title>{{ itemMenu.title }}</v-list-item-title>
         </v-list-item>
       </v-list>
-    </v-navigation-drawer>
+    </v-menu>
+   </span>
+    </v-app-bar>
+    <v-content>
+        <nuxt />
+    </v-content>
     <v-footer
       :fixed="fixed"
       app
     >
-      <span>&copy; {{ new Date().getFullYear() }}</span>
+      <span>&copy; Adrian Wolf {{ new Date().getFullYear() }}</span>
     </v-footer>
   </v-app>
 </template>
 
 <script>
 export default {
+  computed: {
+    mapa () { return this.$store.state.map.mapa }
+  },
   data () {
     return {
+      menuButtons: [{ text: 'Services', menuExtension: true, menuList: [{ title: 'One' }, { title: 'two' }, { title: 'three' }] }, { text: 'About' }, { text: 'Contact' }],
+      on: false,
       clipped: false,
       drawer: false,
       fixed: false,
@@ -76,3 +83,13 @@ export default {
   }
 }
 </script>
+
+<style>
+.bar__title{
+  font-family: 'Open Sans', sans-serif;
+  letter-spacing: 8px;
+  font-weight: 900;
+
+}
+
+</style>
