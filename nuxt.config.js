@@ -62,10 +62,10 @@ export default {
     theme: {
       dark: false,
       themes: {
-        dark: {
-          primary: colors.blue.darken2,
+        light: {
+          primary: '#5e4da9',
           accent: colors.grey.darken3,
-          secondary: colors.amber.darken3,
+          secondary: '#d4a2c8',
           info: colors.teal.lighten1,
           warning: colors.amber.base,
           error: colors.deepOrange.accent4,

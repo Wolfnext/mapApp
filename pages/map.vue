@@ -9,22 +9,33 @@
    <v-card
     class="list__card">
     <v-toolbar class="search__toolbar" dark color="primary">
-      <v-text-field
+        <v-text-field
         background-color="primary"
         hide-details
         prepend-icon="mdi-magnify"
         single-line
       ></v-text-field>
-
     </v-toolbar>
+        <v-row
+        class="pa-4"
+        align="center"
+        justify="left"
+      >
+     <filterPrice />
+     <roomBath />
+     <policies />
+   </v-row>
   </v-card>
     </div>
   </v-layout>
 </template>
 
 <script>
-
+import filterPrice from '@/components/filterPrice.vue'
+import roomBath from '@/components/roomBath.vue'
+import policies from '@/components/policies.vue'
 export default {
+  components: { filterPrice, roomBath, policies },
   mounted () {
     const mapboxgl = require('mapbox-gl/dist/mapbox-gl.js')
     mapboxgl.accessToken = 'pk.eyJ1IjoiYWRpb3NhZGlrIiwiYSI6ImNrOGVkNGczMDBoaTUzaG4xOXhybnRnNXMifQ.m4Wm5gaZU0UQUssmkJ5Zkg'
