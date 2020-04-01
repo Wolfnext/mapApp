@@ -52,7 +52,7 @@
         align="center"
         justify="space-around"
       >
-      <v-icon large>mdi-bed-queen-outline</v-icon>
+      <v-icon large>mdi-shower</v-icon>
         <span class="main__fontFamily">Bathrooms</span>
         <span class="main__fontFamily">{{filter.bathroom}}</span>
          <v-btn-toggle
@@ -85,7 +85,8 @@
 export default {
   data () {
     return {
-      filter: { bedroom: 0, bathroom: 0 }
+      filter: { bedroom: 0, bathroom: 0 },
+      menu: false
     }
   },
   mounted () {

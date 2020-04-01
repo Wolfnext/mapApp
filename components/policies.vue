@@ -1,10 +1,10 @@
 <template>
-  <div class="text-center">
+  <div class="text-left">
     <v-menu
       v-model="menu"
       :close-on-content-click="false"
       :nudge-width="200"
-      offset-x
+      offset-y
     >
       <template v-slot:activator="{ on }">
         <v-btn
@@ -26,10 +26,10 @@
    <v-row
         class=""
         align="center"
-        justify="space-around"
+        justify="space-between"
       >
-<span class="main__fontFamily">{{policie.title}}</span>
- <v-switch v-model="people" value="John"> </v-switch></v-flex>
+<span class="main__fontFamily ml-3">{{policie.title}}</span>
+ <v-switch class="mr-3" value="John"> </v-switch></v-flex>
  </v-row>
 <v-divider />
 
@@ -48,7 +48,8 @@
 export default {
   data () {
     return {
-      policiesList: [{ title: 'Smoking Allowed', model: 'allowSmoke' }, { title: 'Pets Allowed', model: 'allowSmoke' }, { title: 'Section 8 Housing', model: 'allowSmoke' }]
+      policiesList: [{ title: 'Smoking Allowed', model: 'allowSmoke' }, { title: 'Pets Allowed', model: 'allowSmoke' }, { title: 'Section 8 Housing', model: 'allowSmoke' }],
+      menu: false
     }
   },
   mounted () {
