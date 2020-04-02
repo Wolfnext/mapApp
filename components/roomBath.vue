@@ -30,16 +30,16 @@
       >
         <v-icon large>mdi-bed-queen-outline</v-icon>
         <span class="main__fontFamily">Bedrooms</span>
-        <span class="main__fontFamily">{{filter.bedroom}}</span>
+        <span class="main__fontFamily">{{bedrooms}}</span>
          <v-btn-toggle
           multipletoggle_exclusive
           rounded
           dark
           >
-          <v-btn color="secondary" small>
+          <v-btn @click="bedrooms++" color="secondary" small>
             <v-icon>mdi-plus</v-icon>
           </v-btn>
-          <v-btn color="secondary" small>
+          <v-btn @click="() => { if(bedrooms>0) bedrooms-- }" color="secondary" small>
             <v-icon>mdi-minus</v-icon>
           </v-btn>
         </v-btn-toggle>
@@ -54,16 +54,16 @@
       >
       <v-icon large>mdi-shower</v-icon>
         <span class="main__fontFamily">Bathrooms</span>
-        <span class="main__fontFamily">{{filter.bathroom}}</span>
+        <span class="main__fontFamily">{{bathrooms}}</span>
          <v-btn-toggle
           multipletoggle_exclusive
           rounded
           dark
           >
-          <v-btn color="secondary" small>
+          <v-btn @click="bathrooms++" color="secondary" small>
             <v-icon>mdi-plus</v-icon>
           </v-btn>
-          <v-btn color="secondary" small>
+          <v-btn @click="() => { if(bathrooms>0) bathrooms-- }" color="secondary" small>
             <v-icon>mdi-minus</v-icon>
           </v-btn>
         </v-btn-toggle>
@@ -73,7 +73,7 @@
           <v-spacer></v-spacer>
 
           <v-btn class="main__fontFamily" small text @click="menu = false">Cancel</v-btn>
-          <v-btn class="main__fontFamily" small color="primary" @click="menu = false">Apply</v-btn>
+          <v-btn class="main__fontFamily" small color="primary" @click="updateFilter">Apply</v-btn>
         </v-card-actions>
       </v-container>
       </v-card>
@@ -82,14 +82,26 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
+  computed: {
+    ...mapState(['filters'])
+  },
   data () {
     return {
-      filter: { bedroom: 0, bathroom: 0 },
-      menu: false
+      menu: false,
+      bathrooms: 0,
+      bedrooms: 0
     }
   },
-  mounted () {
+  methods: {
+    updateFilter () {
+      this.menu = false
+      const filter = JSON.parse(JSON.stringify(this.filters))
+      filter.bedrooms = this.bedrooms
+      filter.bathrooms = this.bathrooms
+      this.$store.dispatch('updateFilter', filter)
+    }
   }
 }
 </script>

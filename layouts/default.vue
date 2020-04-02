@@ -13,7 +13,7 @@
     <v-toolbar-title class="bar__title">IKOS</v-toolbar-title>
      <v-spacer></v-spacer>
 
-     <span :key="index" v-for="(item, index) in menuButtons">
+     <span  class="hidden-sm-and-down" :key="index" v-for="(item, index) in menuButtons">
       <v-btn v-if="!item.menuExtension" text>
         <span >{{item.text}}</span>
       </v-btn>
@@ -38,6 +38,22 @@
       </v-list>
     </v-menu>
    </span>
+ <v-menu offset-y class="hidden-md-and-up">
+        <template v-slot:activator="{ on }">
+        <v-btn
+          text
+          v-on="on"
+        >
+         <v-icon>mdi-menu</v-icon>
+        </v-btn>
+      </template>
+        <v-list>
+          <v-list-item :key="index" v-for="(item, index) in menuButtons">
+              <v-list-tile-title>{{ item.text }}</v-list-tile-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+
     </v-app-bar>
     <v-content>
         <nuxt />

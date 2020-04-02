@@ -29,7 +29,7 @@
         justify="space-between"
       >
 <span class="main__fontFamily ml-3">{{policie.title}}</span>
- <v-switch class="mr-3" value="John"> </v-switch></v-flex>
+ <v-switch class="mr-3" v-model="policies[index]"> </v-switch></v-flex>
  </v-row>
 <v-divider />
 
@@ -37,7 +37,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn class="main__fontFamily" small text @click="menu = false">Cancel</v-btn>
-          <v-btn class="main__fontFamily" small color="primary" @click="menu = false">Save</v-btn>
+          <v-btn class="main__fontFamily" small color="primary" @click="updateFilter">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-menu>
@@ -45,14 +45,29 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
+  computed: {
+    ...mapState(['filters'])
+  },
   data () {
     return {
-      policiesList: [{ title: 'Smoking Allowed', model: 'allowSmoke' }, { title: 'Pets Allowed', model: 'allowSmoke' }, { title: 'Section 8 Housing', model: 'allowSmoke' }],
-      menu: false
+      policiesList: [{ title: 'Smoking Allowed' }, { title: 'Pets Allowed' }, { title: 'Section 8 Housing' }],
+      menu: false,
+      policies: [0, 0, 0]
     }
   },
-  mounted () {
+  methods: {
+    updateFilter () {
+      this.menu = false
+      const filter = JSON.parse(JSON.stringify(this.filters))
+      filter.allowSmoking = this.policies[0]
+      filter.allowPets = this.policies[1]
+      filter.eightHousing = this.policies[2]
+      this.$store.dispatch('updateFilter', filter)
+    }
+  },
+  create () {
   }
 }
 </script>

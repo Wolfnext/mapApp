@@ -5,7 +5,22 @@
     light
   >
   <div id="map">
-   <v-card class="list__card">
+         <v-fab-transition>
+              <v-btn
+                class="btn__back"
+                color="primary"
+                dark
+                @click="returnToTop"
+                absolute
+                top
+                right
+                fab
+              >
+                <v-icon>mdi-arrow-collapse-up</v-icon>
+              </v-btn>
+            </v-fab-transition>
+    </div>
+    <v-card id="firstElement" class="list__card">
     <div class="toolbar__custom">
         <div
         id="geocoder"
@@ -36,7 +51,6 @@
 
 </div>
   </v-card>
-    </div>
   </v-layout>
 </template>
 
@@ -76,7 +90,6 @@ export default {
       this.listFilterResult = JSON.parse(JSON.stringify(newValue)) 
       if (this.map)this.map.getSource('points').setData(this.mapPlace);
   },
-//Optional Deep if you need it
     {
       deep:true
     }
@@ -207,9 +220,14 @@ increacePrice(data){
     }, 5)
   }
   })
+},
 
+returnToTop(){
+this.$vuetify.goTo('#firstElement')
+this.map.setZoom(5)
 },
 flyToPoint(data){
+  this.$vuetify.goTo('#map')
   this.increacePrice(data)
   this.map.flyTo({
     zoom: 13,
@@ -225,56 +243,30 @@ flyToPoint(data){
 #map{
 z-index:1;
 }
-.marker{
-  cursor:pointer;
-  background-color:#5c4da2;
-  border-radius: .4em;
-  width:70px;
-  height:25px;
-  color:white;
-  font-family: 'Open Sans', sans-serif;
-  font-weight: 900;
-  text-align:center;
-  padding-top:2px;
-  font-size:16px;
-webkit-box-shadow: 10px 10px 4px -7px rgba(0,0,0,0.39);
--moz-box-shadow: 10px 10px 4px -7px rgba(0,0,0,0.39);
-box-shadow: 10px 10px 4px -7px rgba(0,0,0,0.39);
-}
-
-.marker:after {
-  content: '';
-  z-index:0;
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border: 10px solid transparent;
-  border-top-color: #5c4da2;
-  border-bottom: 0;
-  margin-left: -10px;
-  margin-bottom: -10px;
-}
 
 @import "https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css";
 @import "https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.2/mapbox-gl-geocoder.css";
 #map{
   width: 100%;
   height: 90vh;
-  position: absolute; top: 0; bottom: 0;
+  position: absolute;
+  top: 0;
+  bottom: 0;
 }
+
 
 .list__card{
   width:28vw;
   height:600px;
-  z-index:100;
+  z-index:1;
   position:absolute;
   top:3vh;
   overflow: hidden;
   left:2vw;
   border-radius:10px !important;
 }
+
+
 
 .geocoder {
 z-index: 100000;
@@ -318,6 +310,36 @@ margin-left:2vw;
   box-shadow:0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px -5px rgba(0, 0, 0, 0.14), 0px 1px 10px -5px rgba(0, 0, 0, 0.12);
   border-bottom-left-radius: 0px !important;
   border-bottom-right-radius: 0px !important;
+}
+
+  .btn__back{
+    opacity:0;
+    }
+
+@media (max-width: 600px) {
+  #map{
+      margin-top:100vh;
+      width:100vw;
+      position:relative;
+  }
+  .list__card{
+    top:10px;
+    height:100vh;
+    width:98vw;
+  }
+  .toolbar__custom{
+    width:100vw;
+  }
+
+  .geocoder{
+    width:94vw;
+  }
+  .btn__back{
+    opacity:1;
+    left:50%;
+    top:6vh !important;
+  }
+
 }
 
 </style>
