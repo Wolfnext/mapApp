@@ -1,57 +1,57 @@
 <template>
   <v-layout
-    column
-    align-center
-    light
+  column
+  align-center
+  light
   >
   <div id="map">
-         <v-fab-transition>
-              <v-btn
-                class="btn__back"
-                color="primary"
-                dark
-                @click="returnToTop"
-                absolute
-                top
-                right
-                fab
-              >
-                <v-icon>mdi-arrow-collapse-up</v-icon>
-              </v-btn>
-            </v-fab-transition>
-    </div>
-    <v-card id="firstElement" class="list__card">
-    <div class="toolbar__custom">
-        <div
-        id="geocoder"
-        class="geocoder light">
-        </div>
+   <v-fab-transition>
+    <v-btn
+    class="btn__back"
+    color="primary"
+    dark
+    @click="returnToTop"
+    absolute
+    top
+    right
+    fab
+    >
+    <v-icon>mdi-arrow-collapse-up</v-icon>
+  </v-btn>
+</v-fab-transition>
+</div>
+<v-card id="firstElement" class="list__card">
+  <div class="toolbar__custom">
+    <div
+    id="geocoder"
+    class="geocoder light">
+  </div>
 
-      </div>
-      <div class="filterBox" >
-        <v-row
-        class="mt-1 ml-0 mr-0 "
-        align="center"
-      >
-     <filterPrice :visibleFeatures="visibleFeatures" />
-     <roomBath />
-     <policies />
-   </v-row>
+</div>
+<div class="filterBox" >
+  <v-row
+  class="mt-1 ml-0 mr-0 "
+  align="center"
+  >
+  <filterPrice :visibleFeatures="visibleFeatures" />
+  <roomBath />
+  <policies />
+</v-row>
+</div>
+<div class="hide__scroll">
+ <div class="scroll__content" v-if="!loadingData && listFilterResult">
+   <advertTile
+   :key="index"
+   v-for="(advert,index) in listFilterResult.features"
+   :activeId="activeId"
+   :advertClick="flyToPoint"
+   :advertData="advert.properties"
+   :advertAllData="advert"></advertTile>
  </div>
- <div class="hide__scroll">
-   <div class="scroll__content" v-if="!loadingData && listFilterResult">
-     <advertTile
-     :key="index"
-     v-for="(advert,index) in listFilterResult.features"
-     :activeId="activeId"
-     :advertClick="flyToPoint"
-     :advertData="advert.properties"
-     :advertAllData="advert"></advertTile>
-</div>
 
 </div>
-  </v-card>
-  </v-layout>
+</v-card>
+</v-layout>
 </template>
 
 <script>
@@ -140,7 +140,6 @@ loadImages(this.imageMarkerPopup, (loadedImages) => {
     pixelRatio: 2
 });
 
- 
 map.addSource('points', {
 'type': 'geojson',
 'data': this.mapPlace
@@ -200,7 +199,7 @@ if (Object.keys(results).length === Object.keys(urls).length) {
 }
 
 },
-
+// increment clicked marker
 increacePrice(data){
   this.mapPlace.features.forEach((item,index) => {
     if(item.properties.id === data.properties.id){
@@ -221,11 +220,12 @@ increacePrice(data){
   }
   })
 },
-
+// return to Top (only Mobile)
 returnToTop(){
 this.$vuetify.goTo('#firstElement')
 this.map.setZoom(5)
 },
+// fly to clicked advert
 flyToPoint(data){
   this.$vuetify.goTo('#map')
   this.increacePrice(data)

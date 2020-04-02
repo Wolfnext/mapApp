@@ -1,6 +1,8 @@
 # rental_map
 
-> Map app
+> VueJS App with Vuex.
+> Parsing data from GeoJson
+> Adrian Wolf
 
 ## Build Setup
 

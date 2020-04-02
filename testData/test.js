@@ -1,4 +1,5 @@
 /*eslint-disable */
+// Example geoJSON DATA from backend
 export default {
       type: 'FeatureCollection',
       features: [

@@ -30,16 +30,10 @@
 <script>
 export default {
   props: ['advertData', 'activeId', 'advertClick', 'advertAllData'],
-  data () {
-    return {
-    }
-  },
   methods: {
     clickAdvert () {
       this.advertClick(this.advertAllData)
     }
-  },
-  mounted () {
   }
 }
 </script>

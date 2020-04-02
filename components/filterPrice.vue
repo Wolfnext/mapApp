@@ -1,40 +1,39 @@
 <template>
   <div class="text-center">
     <v-menu
-      v-model="menu"
-      :close-on-content-click="false"
-      :nudge-width="200"
-      offset-y
+    v-model="menu"
+    :close-on-content-click="false"
+    :nudge-width="200"
+    offset-y
     >
-      <template v-slot:activator="{ on }">
-        <v-btn
-          class="ml-3 main__fontFamily"
-          color="primary"
-          dark
-          small
-          outlined
-          v-on="on"
-        >
-          <span>Price</span>
-          <v-icon right>mdi-menu-down</v-icon>
-        </v-btn>
-      </template>
+    <template v-slot:activator="{ on }">
+      <v-btn
+      class="ml-3 main__fontFamily"
+      color="primary"
+      dark
+      small
+      outlined
+      v-on="on"
+      >
+      <span>Price</span>
+      <v-icon right>mdi-menu-down</v-icon>
+    </v-btn>
+  </template>
 
-      <v-card class="main__fontFamily">
-        <v-container>
-        <v-card-subtitle>Average price in the visible area is ${{avgPrice}}</v-card-subtitle>
-                <div class=""><v-range-slider messages v-model="priceRange" :max="maxPrice" :min="minPrice" :step="10"></v-range-slider></div>
-                {{priceRange | priceRangeFilter}}
-        <v-card-actions>
-          <v-spacer></v-spacer>
-
-          <v-btn class="main__fontFamily" small text @click="menu = false">Cancel</v-btn>
-          <v-btn class="main__fontFamily" small color="primary" @click="updateFilter">Apply</v-btn>
-        </v-card-actions>
-      </v-container>
-      </v-card>
-    </v-menu>
-  </div>
+  <v-card class="main__fontFamily">
+    <v-container>
+      <v-card-subtitle>Average price in the visible area is ${{avgPrice}}</v-card-subtitle>
+      <div class=""><v-range-slider messages v-model="priceRange" :max="maxPrice" :min="minPrice" :step="10"></v-range-slider></div>
+      {{priceRange | priceRangeFilter}}
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn class="main__fontFamily" small text @click="menu = false">Cancel</v-btn>
+        <v-btn class="main__fontFamily" small color="primary" @click="updateFilter">Apply</v-btn>
+      </v-card-actions>
+    </v-container>
+  </v-card>
+</v-menu>
+</div>
 </template>
 
 <script>
