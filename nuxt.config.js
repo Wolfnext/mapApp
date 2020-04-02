@@ -22,11 +22,7 @@ export default {
   */
   loading: { color: '#fff' },
 
-  server: {
-    port: 8083, // default: 3000
-    host: '192.168.43.80', // default: localhost,
-    timing: false
-  },
+  
 
   /*
   ** Global CSS
