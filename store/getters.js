@@ -1,5 +1,8 @@
 export default {
-  getData: (state) => {
-    return state.placeData
+  getFeatures: (state) => {
+    return state.filterData
+  },
+  getFilterData: (state) => {
+    return state.filter
   }
 }

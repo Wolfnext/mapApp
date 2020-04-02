@@ -22,14 +22,14 @@
 
       <v-card class="main__fontFamily">
         <v-container>
-        <v-card-subtitle>Average rental price in the test are is $50</v-card-subtitle>
-                <div class=""><v-range-slider messages v-model="priceRange" :max="maxPrice" :min="minPrice"></v-range-slider></div>
-                {{priceRange}}
+        <v-card-subtitle>Average price in the visible area is ${{avgPrice}}</v-card-subtitle>
+                <div class=""><v-range-slider messages v-model="priceRange" :max="maxPrice" :min="minPrice" :step="10"></v-range-slider></div>
+                {{priceRange | priceRangeFilter}}
         <v-card-actions>
           <v-spacer></v-spacer>
 
           <v-btn class="main__fontFamily" small text @click="menu = false">Cancel</v-btn>
-          <v-btn class="main__fontFamily" small color="primary" @click="menu = false">Apply</v-btn>
+          <v-btn class="main__fontFamily" small color="primary" @click="updateFilter">Apply</v-btn>
         </v-card-actions>
       </v-container>
       </v-card>
@@ -38,16 +38,47 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
+  props: ['visibleFeatures'],
+  computed: {
+    ...mapState(['filters'])
+  },
   data () {
     return {
       menu: false,
-      priceRange: [200, 500],
-      maxPrice: 600,
-      minPrice: 200
+      priceRange: [0, 500],
+      maxPrice: 1500,
+      minPrice: 0,
+      avgPrice: null
+    }
+  },
+  filters: {
+    priceRangeFilter: (priceRange) => {
+      return '$' + priceRange[0] + ' - ' + '$' + priceRange[1]
+    }
+  },
+  methods: {
+    updateFilter () {
+      this.menu = false
+      const filter = JSON.parse(JSON.stringify(this.filters))
+      filter.priceRange = this.priceRange
+      this.$store.dispatch('updateFilter', filter)
+    },
+
+    calculateAverageVisiblePlaces () {
+      let sumPrice = 0
+      this.visibleFeatures.forEach((feature) => {
+        sumPrice += parseInt(feature.properties.price.match(/\d+/g).map(Number))
+      })
+      this.avgPrice = sumPrice / this.visibleFeatures.length
     }
   },
   mounted () {
+    if (this.filters.priceRange) { this.priceRange = [...this.filters.priceRange] }
+  },
+  updated () {
+    if (this.visibleFeatures[0]) { this.calculateAverageVisiblePlaces() }
   }
 }
 </script>

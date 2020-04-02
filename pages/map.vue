@@ -4,7 +4,7 @@
     align-center
     light
   >
-    <div id="map">
+  <div id="map">
    <v-card class="list__card">
     <div class="toolbar__custom">
         <div
@@ -18,13 +18,13 @@
         class="mt-1 ml-0 mr-0 "
         align="center"
       >
-     <filterPrice />
+     <filterPrice :visibleFeatures="visibleFeatures" />
      <roomBath />
      <policies />
    </v-row>
  </div>
  <div class="hide__scroll">
-   <div class="scroll__content" v-if="!incrementAnimationPrice">
+   <div class="scroll__content" v-if="!loadingData && listFilterResult">
      <advertTile
      :key="index"
      v-for="(advert,index) in listFilterResult.features"
@@ -41,26 +41,54 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import filterPrice from '@/components/filterPrice.vue'
 import roomBath from '@/components/roomBath.vue'
 import policies from '@/components/policies.vue'
 import advertTile from '@/components/advertTile.vue'
 export default {
+  computed: {
+    ...mapState(['filterData'])
+  },
   data () {
     return {
-      dataPlace: JSON.parse(JSON.stringify(this.$store.getters.getData)),
-      mapPlace: null,
-      listFilterResult: JSON.parse(JSON.stringify(this.$store.getters.getData)),
+      imageMarkerPopup: { pricePopup: 'chatbox.png' },
+      visibleFeatures: [],
+      dataPlace: this.placeData,
+      mapPlace: this.placeData,
+      listFilterResult: this.placeData,
       activeId: null,
       incrementAnimationPrice: false,
-      map: null
+      map: null,
+      loadingData: true
     }
   },
   components: { filterPrice, roomBath, policies, advertTile },
   mounted () {
-    this.mapPlace = JSON.parse(JSON.stringify(this.dataPlace))
-    this.initializeMap()
     /*eslint-disable */
+    this.$store.watch(
+    (state)=>{
+    return this.$store.state.filterData
+  },
+  (newValue, oldValue)=>{
+      this.dataPlace = JSON.parse(JSON.stringify(newValue))
+      this.mapPlace = JSON.parse(JSON.stringify(newValue))
+      this.listFilterResult = JSON.parse(JSON.stringify(newValue)) 
+      if (this.map)this.map.getSource('points').setData(this.mapPlace);
+  },
+//Optional Deep if you need it
+    {
+      deep:true
+    }
+  )
+    this.$store.dispatch('getDataFromApi').then((data) => { 
+      this.dataPlace = JSON.parse(JSON.stringify(this.filterData))
+      this.mapPlace = JSON.parse(JSON.stringify(this.filterData))
+      this.listFilterResult = JSON.parse(JSON.stringify(this.filterData)) 
+      this.loadingData = false
+      if (!this.loadingData) { this.initializeMap() }
+    })
+
   },
   methods: {
     initializeMap(){
@@ -83,59 +111,28 @@ export default {
         accessToken: mapGL.accessToken,
         mapboxgl: mapGL
      })
+      document.getElementById('geocoder').appendChild(geocoder.onAdd(map))
+      this.map = map;
+/*eslint-disable */
 
-    document.getElementById('geocoder').appendChild(geocoder.onAdd(map))
-    this.map = map
-
-
-
-var images = {
-'popup': 'https://docs.mapbox.com/mapbox-gl-js/assets/popup.png',
-'popup-debug':'chatbox.png'
-};
-
-
-
-
-loadImages(images, (loadedImages) => {
-
-this.map.on('load', () => {
-
-
-this.map.on('mouseenter', 'points', function() {
-this.map.getCanvas().style.cursor = 'pointer';
+loadImages(this.imageMarkerPopup, (loadedImages) => {
+  map.on('load', () => {
+  map.addImage('pricePopup', loadedImages['pricePopup'], {
+    stretchX: [
+      [0, 80],
+      [95, 130]
+    ],
+    stretchY: [[0, 50]],
+    content: [70,80, 160, 110],
+    pixelRatio: 2
 });
 
-
-this.map.addImage('popup-debug', loadedImages['popup-debug'], {
-
-
-stretchX: [
-[0, 80],
-[95, 130]
-],
-
-stretchY: [[0, 50]],
-
-content: [70,80, 160, 110],
-
-pixelRatio: 2
-});
-map.addImage('popup', loadedImages['popup'], {
-stretchX: [
-[25, 55],
-[85, 100]
-],
-stretchY: [[0, 100]],
-content: [80, 80, 150, 120],
-pixelRatio: 2
-});
  
-this.map.addSource('points', {
+map.addSource('points', {
 'type': 'geojson',
 'data': this.mapPlace
 });
-this.map.addLayer({
+map.addLayer({
 'id': 'points',
 'type': 'symbol',
 'source': 'points',
@@ -150,33 +147,16 @@ this.map.addLayer({
    'text-color': "#fff"
 }
 });
- 
 
-});
-});
- 
-function loadImages(urls, callback) {
-var results = {};
-for (var name in urls) {
-map.loadImage(urls[name], makeCallback(name));
-}
- 
-function makeCallback(name) {
-return function(err, image) {
-results[name] = err ? null : image;
- 
-// if all images are loaded, call the callback
-if (Object.keys(results).length === Object.keys(urls).length) {
-callback(results);
-}
-}
-}
-}
- 
 
-this.map.on('render', () => {
-var features = map.queryRenderedFeatures({ layers: ['points'] })
+map.on('mouseenter', 'points', function() {
+    map.getCanvas().style.cursor = 'pointer';
+});
+
+map.on('render', () => {
+const features = map.queryRenderedFeatures({ layers: ['points'] })
 if (features) {
+this.visibleFeatures = features
 let tempData =  JSON.parse(JSON.stringify(this.dataPlace.features))
 let tempArray = [];
  features.forEach((item)=>{
@@ -186,6 +166,25 @@ let tempArray = [];
  this.listFilterResult.features = tempArray
 }
 });
+ 
+});
+});
+
+function loadImages(urls, callback) {
+let results = {}
+for (let name in urls) {
+  map.loadImage(urls[name], makeCallback(name));
+}
+ 
+function makeCallback(name) {
+return function(err, image) {
+results[name] = err ? null : image;
+if (Object.keys(results).length === Object.keys(urls).length) {
+    callback(results);
+}
+}
+}
+}
 
 },
 
@@ -199,27 +198,26 @@ increacePrice(data){
       if(price < priceMax){
         price+=2
         item.properties.price = item.properties.currency + price 
-         if(price%2 == 0)this.map.getSource('points').setData(this.mapPlace);            
+        this.map.getSource('points').setData(this.mapPlace);            
         }else{
+          clearInterval(interval)
           item.properties.price = item.properties.currency + priceMax 
-         this.map.getSource('points').setData(this.mapPlace);
-         clearInterval(interval)}
-    }, 10)
+          this.map.getSource('points').setData(this.mapPlace);
+         }
+    }, 5)
   }
   })
+
 },
 flyToPoint(data){
-this.increacePrice(data)
- this.map.flyTo({
-  zoom: 13,
-  center: data.geometry.coordinates,
-  essential: true 
+  this.increacePrice(data)
+  this.map.flyTo({
+    zoom: 13,
+    center: data.geometry.coordinates,
+    essential: true 
 });
 
     },
-    headlineInList (e, eventData) {
-      this.activeId = e.id
-    }
   }
 }
 </script>
