@@ -1,14 +1,12 @@
 <template>
   <v-layout
     column
-    justify-center
     align-center
     light
   >
     <div id="map">
    <v-card class="list__card">
     <div class="toolbar__custom">
-
         <div
         id="geocoder"
         class="geocoder light">
@@ -26,8 +24,14 @@
    </v-row>
  </div>
  <div class="hide__scroll">
-   <div class="scroll__content">
-   <advertTile :key="index" v-for="(advert,index) in advertList" :advertData="advert" />
+   <div class="scroll__content" v-if="!incrementAnimationPrice">
+     <advertTile
+     :key="index"
+     v-for="(advert,index) in listFilterResult.features"
+     :activeId="activeId"
+     :advertClick="flyToPoint"
+     :advertData="advert.properties"
+     :advertAllData="advert"></advertTile>
 </div>
 
 </div>
@@ -37,7 +41,6 @@
 </template>
 
 <script>
-import $ from 'jquery'
 import filterPrice from '@/components/filterPrice.vue'
 import roomBath from '@/components/roomBath.vue'
 import policies from '@/components/policies.vue'
@@ -45,67 +48,187 @@ import advertTile from '@/components/advertTile.vue'
 export default {
   data () {
     return {
-      advertList: [{ title: 'Apartments 2 Bedroom', address: 'OLEXON 12 Street #ted', price: '$200' }, { title: 'Apartments 2 Bedroom', address: 'OLEXON 12 Street #ted', price: '$200' }, { title: 'Apartments 2 Bedroom', address: 'OLEXON 12 Street #ted', price: '$200' }, { title: 'Apartments 2 Bedroom', address: 'OLEXON 12 Street #ted', price: '$200' }, { title: 'Apartments 2 Bedroom', address: 'OLEXON 12 Street #ted', price: '$200' }, { title: 'Apartments 2 Bedroom', address: 'OLEXON 12 Street #ted', price: '$200' }, { title: 'Apartments 2 Bedroom', address: 'OLEXON 12 Street #ted', price: '$200' }],
-      dataPlace: this.$store.state.map.placeData
+      dataPlace: JSON.parse(JSON.stringify(this.$store.getters.getData)),
+      mapPlace: null,
+      listFilterResult: JSON.parse(JSON.stringify(this.$store.getters.getData)),
+      activeId: null,
+      incrementAnimationPrice: false,
+      map: null
     }
   },
   components: { filterPrice, roomBath, policies, advertTile },
   mounted () {
-    const recaptchaScript = document.createElement('script')
-    recaptchaScript.setAttribute('src', 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.2/mapbox-gl-geocoder.min.js')
-    document.head.appendChild(recaptchaScript)
-    const mapGL = require('mapbox-gl/dist/mapbox-gl.js')
-    const MapboxGeocoder = require('@mapbox/mapbox-gl-geocoder')
-    mapGL.accessToken = 'pk.eyJ1IjoiYWRpb3NhZGlrIiwiYSI6ImNrOGVkNGczMDBoaTUzaG4xOXhybnRnNXMifQ.m4Wm5gaZU0UQUssmkJ5Zkg'
-    const map = new mapGL.Map({
-      container: 'map',
-      style: 'mapbox://styles/mapbox/streets-v11',
-      center: [-79.955627, 40.412224], // starting position
-      zoom: 12 // starting zoom
-    })
-    map.addControl(new mapGL.FullscreenControl())
-    map.addControl(new mapGL.NavigationControl())
+    this.mapPlace = JSON.parse(JSON.stringify(this.dataPlace))
+    this.initializeMap()
+    /*eslint-disable */
+  },
+  methods: {
+    initializeMap(){
+      const recaptchaScript = document.createElement('script')
+      recaptchaScript.setAttribute('src', 'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.2/mapbox-gl-geocoder.min.js')
+      document.head.appendChild(recaptchaScript)
+      const mapGL = require('mapbox-gl/dist/mapbox-gl.js')
+      const MapboxGeocoder = require('@mapbox/mapbox-gl-geocoder')
+      mapGL.accessToken = 'pk.eyJ1IjoiYWRpb3NhZGlrIiwiYSI6ImNrOGVkNGczMDBoaTUzaG4xOXhybnRnNXMifQ.m4Wm5gaZU0UQUssmkJ5Zkg'
+      var map = new mapGL.Map({
+        container: 'map',
+        style: 'mapbox://styles/adiosadik/ck8g6ihln3okb1iofh7v8z2rg',
+        center: [-79.955627, 40.412224], // starting position
+        zoom: 7 // starting zoom
+      })
+      map.addControl(new mapGL.FullscreenControl())
+      map.addControl(new mapGL.NavigationControl())
 
-    const geocoder = new MapboxGeocoder({
-      accessToken: mapGL.accessToken,
-      mapboxgl: mapGL
-    })
+      const geocoder = new MapboxGeocoder({
+        accessToken: mapGL.accessToken,
+        mapboxgl: mapGL
+     })
 
     document.getElementById('geocoder').appendChild(geocoder.onAdd(map))
+    this.map = map
 
-    const geojson = this.dataPlace
-    console.log(geojson)
-    geojson.features.forEach(function (marker) {
-      const el = document.createElement('div')
-      const markerNumber = document.createElement('span')
-      const markerCurrency = document.createElement('span')
-      markerNumber.className = 'markerNumber'
-      el.className = 'marker'
-      const valueNode = document.createTextNode(marker.properties.price)
-      const currencyNode = document.createTextNode(marker.properties.currency)
-      markerNumber.appendChild(valueNode)
-      markerCurrency.appendChild(currencyNode)
-      el.appendChild(markerCurrency)
-      el.appendChild(markerNumber)
-      new mapGL.Marker(el).setLngLat(marker.geometry.coordinates).addTo(map)
-    })
 
-    $('.markerNumber').each(function () {
-      $(this).prop('Counter', 0).animate({
-        Counter: $(this).text()
-      }, {
-        duration: 3000,
-        easing: 'swing',
-        step: (now) => {
-          $(this).text(Math.ceil(now))
-        }
-      })
-    })
+
+var images = {
+'popup': 'https://docs.mapbox.com/mapbox-gl-js/assets/popup.png',
+'popup-debug':'chatbox.png'
+};
+
+
+
+
+loadImages(images, (loadedImages) => {
+
+this.map.on('load', () => {
+
+
+this.map.on('mouseenter', 'points', function() {
+this.map.getCanvas().style.cursor = 'pointer';
+});
+
+
+this.map.addImage('popup-debug', loadedImages['popup-debug'], {
+
+
+stretchX: [
+[0, 80],
+[95, 130]
+],
+
+stretchY: [[0, 50]],
+
+content: [70,80, 160, 110],
+
+pixelRatio: 2
+});
+map.addImage('popup', loadedImages['popup'], {
+stretchX: [
+[25, 55],
+[85, 100]
+],
+stretchY: [[0, 100]],
+content: [80, 80, 150, 120],
+pixelRatio: 2
+});
+ 
+this.map.addSource('points', {
+'type': 'geojson',
+'data': this.mapPlace
+});
+this.map.addLayer({
+'id': 'points',
+'type': 'symbol',
+'source': 'points',
+'layout': {
+'text-field': ['get', 'price'],
+'icon-text-fit': 'both',
+'icon-image': ['get', 'image-name'],
+'icon-allow-overlap': true,
+'text-allow-overlap': true
+},
+"paint": {
+   'text-color': "#fff"
+}
+});
+ 
+
+});
+});
+ 
+function loadImages(urls, callback) {
+var results = {};
+for (var name in urls) {
+map.loadImage(urls[name], makeCallback(name));
+}
+ 
+function makeCallback(name) {
+return function(err, image) {
+results[name] = err ? null : image;
+ 
+// if all images are loaded, call the callback
+if (Object.keys(results).length === Object.keys(urls).length) {
+callback(results);
+}
+}
+}
+}
+ 
+
+this.map.on('render', () => {
+var features = map.queryRenderedFeatures({ layers: ['points'] })
+if (features) {
+let tempData =  JSON.parse(JSON.stringify(this.dataPlace.features))
+let tempArray = [];
+ features.forEach((item)=>{
+ tempData.forEach((staticData,index) =>{
+  if(item.properties.id == staticData.properties.id)tempArray.push(tempData[index]) }) 
+})
+ this.listFilterResult.features = tempArray
+}
+});
+
+},
+
+increacePrice(data){
+  this.mapPlace.features.forEach((item,index) => {
+    if(item.properties.id === data.properties.id){
+      item.properties.price = '0'
+      let priceMax = parseInt(this.dataPlace.features[index].properties.price.match(/\d+/g).map(Number))
+      const interval = setInterval(() => {
+      let price = parseInt(item.properties.price.match(/\d+/g).map(Number))
+      if(price < priceMax){
+        price+=2
+        item.properties.price = item.properties.currency + price 
+         if(price%2 == 0)this.map.getSource('points').setData(this.mapPlace);            
+        }else{
+          item.properties.price = item.properties.currency + priceMax 
+         this.map.getSource('points').setData(this.mapPlace);
+         clearInterval(interval)}
+    }, 10)
+  }
+  })
+},
+flyToPoint(data){
+this.increacePrice(data)
+ this.map.flyTo({
+  zoom: 13,
+  center: data.geometry.coordinates,
+  essential: true 
+});
+
+    },
+    headlineInList (e, eventData) {
+      this.activeId = e.id
+    }
   }
 }
 </script>
 <style lang="scss">
+#map{
+z-index:1;
+}
 .marker{
+  cursor:pointer;
   background-color:#5c4da2;
   border-radius: .4em;
   width:70px;
@@ -123,6 +246,7 @@ box-shadow: 10px 10px 4px -7px rgba(0,0,0,0.39);
 
 .marker:after {
   content: '';
+  z-index:0;
   position: absolute;
   bottom: 0;
   left: 50%;
@@ -146,6 +270,7 @@ box-shadow: 10px 10px 4px -7px rgba(0,0,0,0.39);
 .list__card{
   width:28vw;
   height:600px;
+  z-index:100;
   position:absolute;
   top:3vh;
   overflow: hidden;
@@ -182,7 +307,9 @@ margin-left:2vw;
     width: 100%;
     height: 100%;
     overflow-y: scroll;
+    z-index:1;
     padding-bottom:15vh;
+
   }
 
  .scroll__content::-webkit-scrollbar {

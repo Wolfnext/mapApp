@@ -1,7 +1,7 @@
 <template>
- <v-card flat class="">
-    <v-container>
-      <v-row justify="left">
+ <v-card @click="clickAdvert" flat>
+    <v-container v-bind:class="{ active: advertData.id === activeId }">
+      <v-row>
         <v-col cols="auto">
           <v-img
           class="image__rounded"
@@ -29,9 +29,14 @@
 
 <script>
 export default {
-  props: ['advertData'],
+  props: ['advertData', 'activeId', 'advertClick', 'advertAllData'],
   data () {
     return {
+    }
+  },
+  methods: {
+    clickAdvert () {
+      this.advertClick(this.advertAllData)
     }
   },
   mounted () {
@@ -40,6 +45,9 @@ export default {
 </script>
 
 <style>
+.active{
+  background-color: rgba(50,140,90,0.4);
+}
 .image__rounded{
   border-radius: 3px;
 }

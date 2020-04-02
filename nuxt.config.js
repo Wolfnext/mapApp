@@ -21,6 +21,13 @@ export default {
   ** Customize the progress-bar color
   */
   loading: { color: '#fff' },
+
+  server: {
+    port: 8083, // default: 3000
+    host: '192.168.1.11', // default: localhost,
+    timing: false
+  },
+
   /*
   ** Global CSS
   */

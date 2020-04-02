@@ -16,6 +16,7 @@
     "@mapbox/mapbox-gl-geocoder": "^4.5.1",
     "@nuxtjs/axios": "^5.3.6",
     "@nuxtjs/pwa": "^3.0.0-0",
+    "countup.js": "^2.0.4",
     "jquery": "^3.4.1",
     "mapbox-gl": "^1.9.0",
     "nuxt": "^2.0.0",
